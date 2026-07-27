@@ -68,17 +68,19 @@ const state = {
     status: 'all',         // 'all' | 'battle' | 'peace'
   },
 
-  // 注目（戦力上位）プレイヤー一覧
+  // 注目（戦力上位）プレイヤー一覧 (名前 & 不変PlayerID)
   highlightPlayers: (localStorage.getItem('gvg_highlight_players') || PRESET_TOP_PLAYERS.join(', '))
     .split(',')
     .map(s => s.trim())
     .filter(Boolean),
+  highlightPlayerIds: new Set(JSON.parse(localStorage.getItem('gvg_highlight_player_ids') || '[]')),
 
   // リアルタイムデータ
   guilds: {},              // guildId -> guildName
   players: {},             // guildId -> [{PlayerId, GuildId, PlayerName}, ...]
+  playerMap: {},           // playerId -> {PlayerId, GuildId, PlayerName}
   castles: [],             // castleId-1 -> castle state
-  deployments: {},         // playerId -> {CharacterId, CastleId, DeployCount}
+  deployments: {},         // playerId -> {castleId: count}
   loginTimes: {},          // playerId -> LastLoginTime
   deployLog: [],           // 最新の配置ログ
 
@@ -87,11 +89,44 @@ const state = {
   wgroups: [],
 };
 
-/** プレイヤーが注目（戦力上位）プレイヤーか判定 */
-const isHighlightedPlayer = (name) => {
-  if (!name || !state.highlightPlayers.length) return false;
-  const target = name.trim();
-  return state.highlightPlayers.some(p => p && (target === p || target.includes(p)));
+/** プレイヤーID同期・登録ヘルパー */
+const syncPlayerHighlightId = (player) => {
+  if (!player || !player.PlayerId) return;
+  state.playerMap[player.PlayerId] = player;
+
+  // 登録名にヒットした場合、不変PlayerIDとしても記憶
+  if (player.PlayerName && state.highlightPlayers.some(p => p && player.PlayerName.includes(p))) {
+    state.highlightPlayerIds.add(player.PlayerId);
+    saveHighlightPlayerIds();
+  }
+};
+
+/** 不変PlayerIDをlocalStorageに保存 */
+const saveHighlightPlayerIds = () => {
+  try {
+    localStorage.setItem('gvg_highlight_player_ids', JSON.stringify([...state.highlightPlayerIds]));
+  } catch (e) {}
+};
+
+/** プレイヤーが注目（戦力上位）プレイヤーか判定（PlayerID最優先・改名対応） */
+const isHighlightedPlayer = (name, playerId = null) => {
+  // 1. 不変PlayerIDによる判定（改名後も確実に検知）
+  if (playerId && state.highlightPlayerIds.has(Number(playerId))) {
+    return true;
+  }
+
+  // 2. 名前による判定
+  if (name && state.highlightPlayers.length) {
+    const target = name.trim();
+    const isMatch = state.highlightPlayers.some(p => p && (target === p || target.includes(p)));
+    if (isMatch && playerId) {
+      state.highlightPlayerIds.add(Number(playerId));
+      saveHighlightPlayerIds();
+    }
+    return isMatch;
+  }
+
+  return false;
 };
 
 // ===========================
@@ -338,6 +373,7 @@ const connectWebSocket = () => {
             state.players[player.GuildId] = [];
           }
           state.players[player.GuildId].push(player);
+          syncPlayerHighlightId(player);
         }
         renderGuilds();
         updateSummary();
@@ -365,6 +401,7 @@ const connectWebSocket = () => {
 
         state.deployLog.unshift({
           time: new Date(),
+          playerId: deploy.PlayerId,
           playerName: playerName || `ID:${deploy.PlayerId}`,
           castleName,
           deployCount: deploy.DeployCount,
@@ -672,7 +709,7 @@ const renderGuilds = () => {
 
         const detailsText = details.length > 0 ? details.join(' ') : '';
 
-        const isHighlight = isHighlightedPlayer(member.PlayerName);
+        const isHighlight = isHighlightedPlayer(member.PlayerName, member.PlayerId);
         const memberClass = isHighlight ? 'member-item highlighted-member' : 'member-item';
         const vipBadge = isHighlight ? '<span class="vip-badge" title="戦力上位ハイライト">👑 主力</span>' : '';
 
@@ -720,7 +757,7 @@ const renderDeployLog = () => {
 
   let html = '';
   for (const entry of state.deployLog.slice(0, 50)) {
-    const isHighlight = isHighlightedPlayer(entry.playerName);
+    const isHighlight = isHighlightedPlayer(entry.playerName, entry.playerId);
     const highlightClass = isHighlight ? 'highlighted-entry' : '';
     const vipBadge = isHighlight ? '<span class="vip-badge" title="戦力上位ハイライト">👑 主力</span>' : '';
 
