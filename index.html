@@ -83,6 +83,27 @@
           <button class="select-btn" data-block="3">D</button>
         </div>
       </div>
+
+      <!-- 拠点フィルター -->
+      <div class="control-group filter-control-group">
+        <label class="control-label">🔍 拠点フィルター</label>
+        <div class="filter-inputs">
+          <select id="filter-guild" class="custom-select">
+            <option value="all">すべてのギルド</option>
+          </select>
+          <select id="filter-role" class="custom-select">
+            <option value="any">保有または布告</option>
+            <option value="defender">保有 (防衛) のみ</option>
+            <option value="attacker">布告 (攻撃) のみ</option>
+          </select>
+          <select id="filter-status" class="custom-select">
+            <option value="all">すべての状態</option>
+            <option value="battle">⚔️ 戦闘中のみ</option>
+            <option value="peace">🛡️ 平和のみ</option>
+          </select>
+          <button id="filter-reset-btn" class="filter-reset-btn" title="フィルターリセット">🔄 リセット</button>
+        </div>
+      </div>
     </div>
   </section>
 

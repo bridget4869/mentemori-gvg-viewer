@@ -300,6 +300,82 @@ body::before {
   box-shadow: 0 2px 6px rgba(108, 92, 231, 0.3);
 }
 
+/* 拠点フィルター */
+.filter-control-group {
+  width: 100%;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.filter-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.custom-select {
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-family: var(--font-main);
+  font-size: 0.8rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  min-width: 140px;
+}
+
+.custom-select:hover {
+  border-color: var(--accent-2);
+}
+
+.custom-select:focus {
+  border-color: var(--accent-1);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.custom-select option {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  padding: 6px;
+}
+
+.filter-reset-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-family: var(--font-main);
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filter-reset-btn:hover {
+  background: rgba(225, 112, 85, 0.2);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.empty-castles-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
 /* ===========================
    エラーバー
    =========================== */

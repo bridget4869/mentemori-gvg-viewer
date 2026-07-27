@@ -54,6 +54,13 @@ const state = {
   ws: null,
   currentSubscription: null,
 
+  // 拠点フィルター状態
+  filter: {
+    guildId: 'all',        // 'all' | GuildId(数値)
+    role: 'any',           // 'any' | 'defender' | 'attacker'
+    status: 'all',         // 'all' | 'battle' | 'peace'
+  },
+
   // リアルタイムデータ
   guilds: {},              // guildId -> guildName
   players: {},             // guildId -> [{PlayerId, GuildId, PlayerName}, ...]
@@ -423,14 +430,92 @@ const updateSummary = () => {
   $('#active-battles').textContent = battleCount;
 };
 
+/** ギルドフィルター選択肢を動的に更新 */
+const updateGuildFilterOptions = () => {
+  const select = $('#filter-guild');
+  if (!select) return;
+
+  const currentSelected = select.value || 'all';
+
+  // 参加ギルド一覧を収集（state.guilds + state.castles に出現するギルド）
+  const guildMap = new Map();
+
+  for (const [id, name] of Object.entries(state.guilds)) {
+    guildMap.set(Number(id), name);
+  }
+
+  for (const castle of state.castles) {
+    if (castle) {
+      if (castle.GuildId && !guildMap.has(castle.GuildId)) {
+        guildMap.set(castle.GuildId, state.guilds[castle.GuildId] || `Guild ${castle.GuildId}`);
+      }
+      if (castle.AttackerGuildId && !guildMap.has(castle.AttackerGuildId)) {
+        guildMap.set(castle.AttackerGuildId, state.guilds[castle.AttackerGuildId] || `Guild ${castle.AttackerGuildId}`);
+      }
+    }
+  }
+
+  let html = '<option value="all">すべてのギルド</option>';
+  for (const [id, name] of guildMap.entries()) {
+    html += `<option value="${id}">${escapeHtml(name)}</option>`;
+  }
+
+  select.innerHTML = html;
+
+  // 以前の選択を復元（存在する場合）
+  if ([...select.options].some(opt => opt.value === currentSelected)) {
+    select.value = currentSelected;
+  } else {
+    select.value = 'all';
+    state.filter.guildId = 'all';
+  }
+};
+
+/** 城がフィルター条件に一致するか判定 */
+const matchesFilter = (castle) => {
+  const { guildId, role, status } = state.filter;
+
+  // 1. 状態フィルター
+  if (status === 'battle') {
+    if (!castle || castle.GvgCastleState % 2 !== 1) return false;
+  } else if (status === 'peace') {
+    if (castle && castle.GvgCastleState % 2 === 1) return false;
+  }
+
+  // 2. ギルドフィルター
+  if (guildId !== 'all') {
+    const targetGuildId = Number(guildId);
+    if (!castle) return false;
+
+    const isDefender = castle.GuildId === targetGuildId;
+    const isAttacker = castle.AttackerGuildId === targetGuildId;
+
+    if (role === 'defender' && !isDefender) return false;
+    if (role === 'attacker' && !isAttacker) return false;
+    if (role === 'any' && !isDefender && !isAttacker) return false;
+  }
+
+  return true;
+};
+
 /** 城一覧を描画 */
 const renderCastles = () => {
   const container = $('#castles-grid');
   const castleNames = state.mode === 'local' ? LOCAL_CASTLE_NAMES : GLOBAL_CASTLE_NAMES;
 
+  // ギルドフィルター選択肢を更新
+  updateGuildFilterOptions();
+
   let html = '';
+  let visibleCount = 0;
+
   for (let i = 0; i < 21; i++) {
     const castle = state.castles[i];
+    
+    // フィルター判定
+    if (!matchesFilter(castle)) continue;
+
+    visibleCount++;
     const name = castleNames[i] || `城${i + 1}`;
     const type = getCastleType(i + 1);
 
@@ -485,6 +570,10 @@ const renderCastles = () => {
           ` : ''}
         </div>
       </div>`;
+  }
+
+  if (visibleCount === 0) {
+    html = '<div class="empty-castles-message">🔍 該当する拠点（城）はありません</div>';
   }
 
   container.innerHTML = html;
@@ -787,6 +876,34 @@ const setupUI = () => {
       state.blockId = +btn.dataset.block;
       subscribe();
     });
+  });
+
+  // 拠点フィルター
+  $('#filter-guild')?.addEventListener('change', (e) => {
+    state.filter.guildId = e.target.value;
+    renderCastles();
+  });
+
+  $('#filter-role')?.addEventListener('change', (e) => {
+    state.filter.role = e.target.value;
+    renderCastles();
+  });
+
+  $('#filter-status')?.addEventListener('change', (e) => {
+    state.filter.status = e.target.value;
+    renderCastles();
+  });
+
+  $('#filter-reset-btn')?.addEventListener('click', () => {
+    state.filter.guildId = 'all';
+    state.filter.role = 'any';
+    state.filter.status = 'all';
+
+    if ($('#filter-guild')) $('#filter-guild').value = 'all';
+    if ($('#filter-role')) $('#filter-role').value = 'any';
+    if ($('#filter-status')) $('#filter-status').value = 'all';
+
+    renderCastles();
   });
 };
 
