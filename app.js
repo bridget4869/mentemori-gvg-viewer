@@ -1056,6 +1056,280 @@ const setupUI = () => {
     renderGuilds();
     renderDeployLog();
   });
+
+  // エクスポートモーダルの開閉
+  $$('.export-open-btn').forEach(btn => {
+    btn.addEventListener('click', openExportModal);
+  });
+
+  $('#modal-close-btn')?.addEventListener('click', closeExportModal);
+  $('#modal-cancel-btn')?.addEventListener('click', closeExportModal);
+
+  // オーバーレイ背景クリックで閉じる
+  $('#export-modal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'export-modal') closeExportModal();
+  });
+
+  // 選択オプション変更でプレビュー更新
+  $$('input[name="export-format"]').forEach(radio => {
+    radio.addEventListener('change', updateExportPreview);
+  });
+  $('#export-opt-unassigned')?.addEventListener('change', updateExportPreview);
+  $('#export-opt-details')?.addEventListener('change', updateExportPreview);
+
+  // 全選択・全解除ボタン
+  $('#export-select-all')?.addEventListener('click', () => {
+    $('#export-guild-list')?.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+    updateExportPreview();
+  });
+
+  $('#export-deselect-all')?.addEventListener('click', () => {
+    $('#export-guild-list')?.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+    updateExportPreview();
+  });
+
+  // コピー & CSVダウンロード
+  $('#export-copy-btn')?.addEventListener('click', copyExportText);
+  $('#export-download-csv-btn')?.addEventListener('click', downloadExportCSV);
+};
+
+// ===========================
+// エクスポート機能 (参加者・スタミナ一覧)
+// ===========================
+
+/** エクスポート用の全ギルド一覧を取得 */
+const getExportGuildList = () => {
+  const guildMap = new Map();
+  for (const [id, name] of Object.entries(state.guilds)) {
+    guildMap.set(Number(id), name);
+  }
+  for (const guildId of Object.keys(state.players)) {
+    const id = Number(guildId);
+    if (!guildMap.has(id)) {
+      guildMap.set(id, state.guilds[id] || `Guild ${id}`);
+    }
+  }
+  return Array.from(guildMap.entries()).map(([id, name]) => ({ id, name }));
+};
+
+/** Discord/テキストフォーマットの生成 */
+const generateExportText = (selectedGuildIds, options = {}) => {
+  const { includeUnassigned = true, includeDetails = true } = options;
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} ${formatTime(now)}`;
+  const modeText = state.mode === 'local' ? 'ギルドバトル' : 'グランドバトル';
+
+  let text = `========================================\n`;
+  text += `⚔️ 【${modeText}】集計結果報告 (${dateStr})\n`;
+  text += `========================================\n\n`;
+
+  if (selectedGuildIds.length === 0) {
+    return text + '※ 出力対象のギルドが選択されていません。\n';
+  }
+
+  for (const guildId of selectedGuildIds) {
+    const guildName = state.guilds[guildId] || `Guild ${guildId}`;
+    const members = state.players[guildId] || [];
+
+    // スタミナ計算
+    let guildTotalStamina = 0;
+    const assignedMembers = [];
+    const unassignedMembers = [];
+
+    for (const member of members) {
+      const { totalStamina, details } = getPlayerStaminaInfo(member.PlayerId);
+      const isHighlight = isHighlightedPlayer(member.PlayerName, member.PlayerId);
+      const vipFlag = isHighlight ? ' 👑' : '';
+
+      if (totalStamina > 0) {
+        guildTotalStamina += totalStamina;
+        assignedMembers.push({
+          name: member.PlayerName + vipFlag,
+          stamina: totalStamina,
+          detailsStr: details.length > 0 ? details.join(', ') : '',
+        });
+      } else {
+        unassignedMembers.push(member.PlayerName + vipFlag);
+      }
+    }
+
+    // スタミナ消費順（降順）にソート
+    assignedMembers.sort((a, b) => b.stamina - a.stamina);
+
+    text += `【ギルド名】${guildName}\n`;
+    text += `・参加人数: ${assignedMembers.length} / ${members.length} 名\n`;
+    text += `・総消費スタミナ: ⚡ ${guildTotalStamina}\n`;
+    text += `----------------------------------------\n`;
+
+    if (assignedMembers.length > 0) {
+      text += `■ 配置済メンバー (${assignedMembers.length}名)\n`;
+      for (const m of assignedMembers) {
+        if (includeDetails && m.detailsStr) {
+          text += `・${m.name} : ⚡${m.stamina} (${m.detailsStr})\n`;
+        } else {
+          text += `・${m.name} : ⚡${m.stamina}\n`;
+        }
+      }
+    } else {
+      text += `■ 配置済メンバー: なし\n`;
+    }
+
+    if (includeUnassigned && unassignedMembers.length > 0) {
+      text += `\n■ 未配置メンバー (${unassignedMembers.length}名)\n`;
+      text += `・` + unassignedMembers.join(', ') + `\n`;
+    }
+
+    text += `\n========================================\n\n`;
+  }
+
+  return text.trim();
+};
+
+/** CSVフォーマットの生成 */
+const generateExportCSV = (selectedGuildIds, options = {}) => {
+  const { includeUnassigned = true, includeDetails = true } = options;
+
+  let csv = 'ギルドID,ギルド名,プレイヤーID,プレイヤー名,主力フラグ,総消費スタミナ,配置済フラグ,配置内訳\n';
+
+  for (const guildId of selectedGuildIds) {
+    const guildName = state.guilds[guildId] || `Guild ${guildId}`;
+    const members = state.players[guildId] || [];
+
+    for (const member of members) {
+      const { totalStamina, details } = getPlayerStaminaInfo(member.PlayerId);
+      const isHighlight = isHighlightedPlayer(member.PlayerName, member.PlayerId);
+
+      if (!includeUnassigned && totalStamina === 0) {
+        continue;
+      }
+
+      const assignedFlag = totalStamina > 0 ? '配置済' : '未配置';
+      const detailsStr = (includeDetails && details.length > 0) ? details.join('; ') : '';
+
+      // CSVエスケープ
+      const escapeCsv = (str) => `"${String(str).replace(/"/g, '""')}"`;
+
+      csv += `${guildId},${escapeCsv(guildName)},${member.PlayerId},${escapeCsv(member.PlayerName)},${isHighlight ? '主力' : ''},${totalStamina},${assignedFlag},${escapeCsv(detailsStr)}\n`;
+    }
+  }
+
+  return csv;
+};
+
+/** エクスポートモーダルのプレビュー更新 */
+const updateExportPreview = () => {
+  const guildListEl = $('#export-guild-list');
+  if (!guildListEl) return;
+
+  const checkboxes = guildListEl.querySelectorAll('input[type="checkbox"]:checked');
+  const selectedGuildIds = Array.from(checkboxes).map(cb => Number(cb.value));
+
+  const format = $('input[name="export-format"]:checked')?.value || 'discord';
+  const includeUnassigned = $('#export-opt-unassigned')?.checked ?? true;
+  const includeDetails = $('#export-opt-details')?.checked ?? true;
+
+  const options = { includeUnassigned, includeDetails };
+  const previewEl = $('#export-preview');
+
+  if (!previewEl) return;
+
+  if (format === 'csv') {
+    previewEl.value = generateExportCSV(selectedGuildIds, options);
+  } else {
+    previewEl.value = generateExportText(selectedGuildIds, options);
+  }
+};
+
+/** ギルド選択リストの生成 */
+const renderExportGuildList = () => {
+  const guildListEl = $('#export-guild-list');
+  if (!guildListEl) return;
+
+  const guilds = getExportGuildList();
+  if (guilds.length === 0) {
+    guildListEl.innerHTML = '<span style="color: var(--text-muted); padding: 8px;">データが存在するギルドはありません</span>';
+    return;
+  }
+
+  let html = '';
+  for (const g of guilds) {
+    html += `
+      <label class="guild-checkbox-item">
+        <input type="checkbox" value="${g.id}" checked />
+        <span>${escapeHtml(g.name)}</span>
+      </label>`;
+  }
+
+  guildListEl.innerHTML = html;
+
+  // イベントリスナーの追加
+  guildListEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', updateExportPreview);
+  });
+};
+
+/** エクスポートモーダルを開く */
+const openExportModal = () => {
+  renderExportGuildList();
+  updateExportPreview();
+  $('#export-modal')?.classList.remove('hidden');
+};
+
+/** エクスポートモーダルを閉じる */
+const closeExportModal = () => {
+  $('#export-modal')?.classList.add('hidden');
+};
+
+/** クリップボードへのコピー機能 */
+const copyExportText = async () => {
+  const previewEl = $('#export-preview');
+  if (!previewEl || !previewEl.value) return;
+
+  try {
+    await navigator.clipboard.writeText(previewEl.value);
+    const btn = $('#export-copy-btn');
+    if (btn) {
+      const originalText = btn.textContent;
+      btn.textContent = '✓ コピーしました！';
+      btn.style.background = '#10b981';
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = '';
+      }, 2000);
+    }
+  } catch (e) {
+    showError('クリップボードへのコピーに失敗しました: ' + e.message);
+  }
+};
+
+/** CSVファイルのダウンロード */
+const downloadExportCSV = () => {
+  const guildListEl = $('#export-guild-list');
+  if (!guildListEl) return;
+
+  const checkboxes = guildListEl.querySelectorAll('input[type="checkbox"]:checked');
+  const selectedGuildIds = Array.from(checkboxes).map(cb => Number(cb.value));
+
+  const includeUnassigned = $('#export-opt-unassigned')?.checked ?? true;
+  const includeDetails = $('#export-opt-details')?.checked ?? true;
+
+  const csvContent = generateExportCSV(selectedGuildIds, { includeUnassigned, includeDetails });
+  
+  // UTF-8 BOM付きにしてExcelの文字化けを防ぐ
+  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+  const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+  
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+  
+  a.href = url;
+  a.download = `gvg_results_${dateStr}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 };
 
 // ===========================

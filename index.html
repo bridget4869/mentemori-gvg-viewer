@@ -114,6 +114,16 @@
           <button id="highlight-clear-btn" class="filter-reset-btn">クリア</button>
         </div>
       </div>
+
+      <!-- エクスポートボタン -->
+      <div class="control-group filter-control-group">
+        <label class="control-label">📊 集計結果エクスポート</label>
+        <div class="filter-inputs">
+          <button id="open-export-btn" class="preset-btn export-open-btn">
+            📊 参加者・スタミナ一覧を出力 / コピー
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -159,9 +169,12 @@
 
     <!-- ギルド・参加者一覧 -->
     <section id="guilds-section">
-      <h2 class="section-title">
-        <span class="section-icon">👥</span>
-        ギルド・参加者一覧
+      <h2 class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+        <span>
+          <span class="section-icon">👥</span>
+          ギルド・参加者一覧
+        </span>
+        <button id="section-export-btn" class="btn-sm export-open-btn">📊 結果を出力</button>
       </h2>
       <div id="guilds-container" class="guilds-container"></div>
     </section>
@@ -175,6 +188,57 @@
       <div id="deploy-log" class="deploy-log"></div>
     </section>
   </main>
+
+  <!-- エクスポートモーダル -->
+  <div id="export-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>📊 ギルバト・グラバト結果エクスポート</h3>
+        <button id="modal-close-btn" class="modal-close-icon">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- ギルド選択領域 -->
+        <div class="export-section">
+          <div class="section-label-row">
+            <label class="modal-label">1. 出力対象ギルドを選択</label>
+            <div class="btn-group-sm">
+              <button id="export-select-all" class="btn-sm">全選択</button>
+              <button id="export-deselect-all" class="btn-sm">全解除</button>
+            </div>
+          </div>
+          <div id="export-guild-list" class="export-guild-list">
+            <!-- 動的にギルドチェックボックスが追加される -->
+          </div>
+        </div>
+
+        <!-- フォーマット選択 & オプション -->
+        <div class="export-section">
+          <label class="modal-label">2. 出力フォーマット & オプション</label>
+          <div class="export-options">
+            <div class="option-group">
+              <label class="radio-label"><input type="radio" name="export-format" value="discord" checked> Discord / テキスト形式</label>
+              <label class="radio-label"><input type="radio" name="export-format" value="csv"> CSV形式</label>
+            </div>
+            <div class="option-group">
+              <label class="checkbox-label"><input type="checkbox" id="export-opt-unassigned" checked> 未配置メンバーも含める</label>
+              <label class="checkbox-label"><input type="checkbox" id="export-opt-details" checked> 配置城の内訳も含める</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- プレビュー表示 -->
+        <div class="export-section">
+          <label class="modal-label">3. プレビュー</label>
+          <textarea id="export-preview" class="export-preview-textarea" readonly placeholder="出力プレビューがここに表示されます..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="export-copy-btn" class="modal-btn primary">📋 クリップボードにコピー</button>
+        <button id="export-download-csv-btn" class="modal-btn secondary">💾 CSVダウンロード</button>
+        <button id="modal-cancel-btn" class="modal-btn tertiary">閉じる</button>
+      </div>
+    </div>
+  </div>
 
   <!-- フッター -->
   <footer>
