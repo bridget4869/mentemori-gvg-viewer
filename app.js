@@ -1057,13 +1057,13 @@ const setupUI = () => {
     renderDeployLog();
   });
 
-  // エクスポートモーダルの開閉
+  // エクスポートモーダルの開閉 (前方参照を避けるためインライン化)
   $$('.export-open-btn').forEach(btn => {
-    btn.addEventListener('click', openExportModal);
+    btn.addEventListener('click', () => openExportModal());
   });
 
-  $('#modal-close-btn')?.addEventListener('click', closeExportModal);
-  $('#modal-cancel-btn')?.addEventListener('click', closeExportModal);
+  $('#modal-close-btn')?.addEventListener('click', () => closeExportModal());
+  $('#modal-cancel-btn')?.addEventListener('click', () => closeExportModal());
 
   // オーバーレイ背景クリックで閉じる
   $('#export-modal')?.addEventListener('click', (e) => {
@@ -1072,10 +1072,10 @@ const setupUI = () => {
 
   // 選択オプション変更でプレビュー更新
   $$('input[name="export-format"]').forEach(radio => {
-    radio.addEventListener('change', updateExportPreview);
+    radio.addEventListener('change', () => updateExportPreview());
   });
-  $('#export-opt-unassigned')?.addEventListener('change', updateExportPreview);
-  $('#export-opt-details')?.addEventListener('change', updateExportPreview);
+  $('#export-opt-unassigned')?.addEventListener('change', () => updateExportPreview());
+  $('#export-opt-details')?.addEventListener('change', () => updateExportPreview());
 
   // 全選択・全解除ボタン
   $('#export-select-all')?.addEventListener('click', () => {
@@ -1089,8 +1089,8 @@ const setupUI = () => {
   });
 
   // コピー & CSVダウンロード
-  $('#export-copy-btn')?.addEventListener('click', copyExportText);
-  $('#export-download-csv-btn')?.addEventListener('click', downloadExportCSV);
+  $('#export-copy-btn')?.addEventListener('click', () => copyExportText());
+  $('#export-download-csv-btn')?.addEventListener('click', () => downloadExportCSV());
 };
 
 // ===========================
