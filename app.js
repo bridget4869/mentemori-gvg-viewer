@@ -329,7 +329,14 @@ const connectWebSocket = () => {
         if (!matches) continue;
 
         const deploy = result.value;
-        state.deployments[deploy.PlayerId] = deploy;
+        if (!state.deployments[deploy.PlayerId]) {
+          state.deployments[deploy.PlayerId] = {};
+        }
+        if (deploy.DeployCount === 0) {
+          delete state.deployments[deploy.PlayerId][deploy.CastleId];
+        } else {
+          state.deployments[deploy.PlayerId][deploy.CastleId] = deploy.DeployCount;
+        }
 
         // 配置ログに追加
         const playerName = findPlayerName(deploy.PlayerId);
@@ -346,6 +353,7 @@ const connectWebSocket = () => {
         // ログは最大100件
         if (state.deployLog.length > 100) state.deployLog.length = 100;
         renderDeployLog();
+        renderGuilds();
 
       } else if (streamId.CastleId === 28) {
         // ログイン時刻
@@ -581,6 +589,27 @@ const renderCastles = () => {
   container.innerHTML = html;
 };
 
+/** プレイヤーの使用スタミナ（合計配置数）および内訳を取得 */
+const getPlayerStaminaInfo = (playerId) => {
+  const userDeploys = state.deployments[playerId];
+  if (!userDeploys) return { totalStamina: 0, details: [] };
+
+  const castleNames = state.mode === 'local' ? LOCAL_CASTLE_NAMES : GLOBAL_CASTLE_NAMES;
+  let totalStamina = 0;
+  const details = [];
+
+  for (const [castleIdStr, count] of Object.entries(userDeploys)) {
+    const castleId = Number(castleIdStr);
+    if (count > 0) {
+      totalStamina += count;
+      const cName = castleNames[castleId - 1] || `城${castleId}`;
+      details.push(`📍${cName} (${count}体)`);
+    }
+  }
+
+  return { totalStamina, details };
+};
+
 /** ギルド・参加者一覧を描画 */
 const renderGuilds = () => {
   const container = $('#guilds-container');
@@ -598,35 +627,59 @@ const renderGuilds = () => {
 
   let html = '';
   for (const guildId of allGuildIds) {
+    // 拠点フィルターで特定のギルドが選ばれている場合、それ以外のギルドは非表示
+    if (state.filter.guildId !== 'all' && Number(state.filter.guildId) !== Number(guildId)) {
+      continue;
+    }
+
     const guildName = state.guilds[guildId] || `Guild ${guildId}`;
     const members = state.players[guildId] || [];
 
-    html += `
-      <div class="guild-card">
-        <div class="guild-card-header">
-          <span class="guild-name">${escapeHtml(guildName)}</span>
-          <span class="guild-member-count">${members.length}人</span>
-        </div>
-        <div class="guild-members">`;
+    // ギルド全体の総使用スタミナ数
+    let guildTotalStamina = 0;
 
+    let membersHtml = '';
     if (members.length === 0) {
-      html += '<div class="member-item" style="color: var(--text-muted);">メンバー情報なし</div>';
+      membersHtml = '<div class="member-item" style="color: var(--text-muted);">メンバー情報なし</div>';
     } else {
       for (const member of members) {
-        const deploy = state.deployments[member.PlayerId];
-        const castleNames = state.mode === 'local' ? LOCAL_CASTLE_NAMES : GLOBAL_CASTLE_NAMES;
-        const deployText = deploy
-          ? `📍${castleNames[deploy.CastleId - 1] || '?'} (${deploy.DeployCount}体)`
-          : '';
-        html += `
+        const { totalStamina, details } = getPlayerStaminaInfo(member.PlayerId);
+        guildTotalStamina += totalStamina;
+
+        const staminaBadge = totalStamina > 0
+          ? `<span class="stamina-badge">⚡ ${totalStamina} スタミナ</span>`
+          : `<span class="stamina-badge empty">未配置</span>`;
+
+        const detailsText = details.length > 0 ? details.join(' ') : '';
+
+        membersHtml += `
           <div class="member-item">
-            <span class="member-name">${escapeHtml(member.PlayerName)}</span>
-            <span class="member-deploy">${deployText}</span>
+            <div class="member-main">
+              <span class="member-name">${escapeHtml(member.PlayerName)}</span>
+              ${staminaBadge}
+            </div>
+            ${detailsText ? `<div class="member-deploy">${detailsText}</div>` : ''}
           </div>`;
       }
     }
 
-    html += '</div></div>';
+    html += `
+      <div class="guild-card">
+        <div class="guild-card-header">
+          <div>
+            <span class="guild-name">${escapeHtml(guildName)}</span>
+            <span class="guild-stamina-total">⚡ 総スタミナ: ${guildTotalStamina}</span>
+          </div>
+          <span class="guild-member-count">${members.length}人</span>
+        </div>
+        <div class="guild-members">
+          ${membersHtml}
+        </div>
+      </div>`;
+  }
+
+  if (!html) {
+    html = '<p style="color: var(--text-muted); text-align: center; padding: 30px;">該当するギルドデータはありません</p>';
   }
 
   container.innerHTML = html;

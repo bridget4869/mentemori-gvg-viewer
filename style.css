@@ -635,6 +635,15 @@ body::before {
   font-weight: 600;
   font-size: 1rem;
   color: var(--accent-2);
+  display: block;
+}
+
+.guild-stamina-total {
+  font-size: 0.75rem;
+  color: #fdcb6e;
+  font-weight: 600;
+  margin-top: 2px;
+  display: inline-block;
 }
 
 .guild-member-count {
@@ -647,7 +656,7 @@ body::before {
 
 .guild-members {
   padding: 12px 18px;
-  max-height: 300px;
+  max-height: 340px;
   overflow-y: auto;
 }
 
@@ -662,25 +671,57 @@ body::before {
 
 .member-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 8px;
+  flex-direction: column;
+  padding: 8px;
   border-radius: var(--radius-sm);
   transition: background var(--transition-fast);
   font-size: 0.85rem;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+}
+
+.member-item:last-child {
+  border-bottom: none;
 }
 
 .member-item:hover {
   background: rgba(108, 92, 231, 0.08);
 }
 
+.member-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .member-name {
   color: var(--text-primary);
+  font-weight: 500;
+}
+
+.stamina-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(253, 203, 110, 0.15);
+  color: #fdcb6e;
+  border: 1px solid rgba(253, 203, 110, 0.3);
+}
+
+.stamina-badge.empty {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  font-weight: 400;
 }
 
 .member-deploy {
   font-size: 0.75rem;
   color: var(--text-muted);
+  margin-top: 4px;
+  padding-left: 4px;
+  word-break: break-all;
 }
 
 /* ===========================
