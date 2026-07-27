@@ -36,7 +36,7 @@ const SERVER_OFFSETS = { jp: 1000, kr: 2000, as: 3000, na: 4000, eu: 5000, gl: 6
 // GvG城の戦闘状態
 const GVG_STATE = {
   0: '防衛',       // neutral / peaceful defense
-  1: '侵攻中',     // active battle (attacker is attacking)
+  1: '侵攻',       // active battle (attacker is attacking)
   2: '陥落',       // fallen (attacker won)
   3: '奪還戦',     // recapture battle
 };
