@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>メメントモリ ギルドバトル リアルタイムビューア</title>
+  <meta name="description" content="メメントモリのギルドバトル・グランドバトルの参加者をリアルタイムで表示するビューア">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header id="app-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⚔️</span>
+        <h1>GvG リアルタイムビューア</h1>
+        <span class="logo-sub">メメントモリ</span>
+      </div>
+      <div class="connection-status" id="connection-status">
+        <span class="status-dot"></span>
+        <span class="status-text">未接続</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- コントロールパネル -->
+  <section id="controls">
+    <div class="controls-inner">
+      <!-- モード選択 -->
+      <div class="control-group">
+        <label class="control-label">モード</label>
+        <div class="toggle-group" id="mode-toggle">
+          <button class="toggle-btn active" data-mode="local">ギルドバトル</button>
+          <button class="toggle-btn" data-mode="global">グランドバトル</button>
+        </div>
+      </div>
+
+      <!-- サーバー選択 -->
+      <div class="control-group">
+        <label class="control-label">サーバー</label>
+        <div class="btn-group" id="server-select">
+          <button class="select-btn active" data-server="jp">Japan</button>
+          <button class="select-btn" data-server="kr">Korea</button>
+          <button class="select-btn" data-server="as">Asia</button>
+          <button class="select-btn" data-server="na">NA</button>
+          <button class="select-btn" data-server="eu">EU</button>
+          <button class="select-btn" data-server="gl">Global</button>
+        </div>
+      </div>
+
+      <!-- ワールド選択 (ギルバト時) -->
+      <div class="control-group" id="world-control">
+        <label class="control-label">ワールド</label>
+        <div class="btn-group scroll-group" id="world-select"></div>
+      </div>
+
+      <!-- グループ選択 (グラバト時) -->
+      <div class="control-group hidden" id="group-control">
+        <label class="control-label">グループ</label>
+        <div class="btn-group scroll-group" id="group-select"></div>
+      </div>
+
+      <!-- クラス選択 (グラバト時) -->
+      <div class="control-group hidden" id="class-control">
+        <label class="control-label">クラス</label>
+        <div class="btn-group" id="class-select">
+          <button class="select-btn active" data-class="3">グランドマスター</button>
+          <button class="select-btn" data-class="2">エキスパート</button>
+          <button class="select-btn" data-class="1">エリート</button>
+        </div>
+      </div>
+
+      <!-- ブロック選択 (グラバト時) -->
+      <div class="control-group hidden" id="block-control">
+        <label class="control-label">ブロック</label>
+        <div class="btn-group" id="block-select">
+          <button class="select-btn active" data-block="0">A</button>
+          <button class="select-btn" data-block="1">B</button>
+          <button class="select-btn" data-block="2">C</button>
+          <button class="select-btn" data-block="3">D</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- エラー表示 -->
+  <div id="error-bar" class="hidden">
+    <span id="error-text"></span>
+  </div>
+
+  <!-- メインコンテンツ -->
+  <main id="main-content">
+    <!-- 概要カード -->
+    <section id="summary-cards">
+      <div class="summary-card">
+        <div class="card-icon">🏰</div>
+        <div class="card-value" id="total-castles">0</div>
+        <div class="card-label">城</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon">🛡️</div>
+        <div class="card-value" id="total-guilds">0</div>
+        <div class="card-label">ギルド</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon">👥</div>
+        <div class="card-value" id="total-players">0</div>
+        <div class="card-label">参加者</div>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon">⚔️</div>
+        <div class="card-value" id="active-battles">0</div>
+        <div class="card-label">戦闘中</div>
+      </div>
+    </section>
+
+    <!-- 城一覧 -->
+    <section id="castles-section">
+      <h2 class="section-title">
+        <span class="section-icon">🏰</span>
+        城の状態
+      </h2>
+      <div id="castles-grid" class="castles-grid"></div>
+    </section>
+
+    <!-- ギルド・参加者一覧 -->
+    <section id="guilds-section">
+      <h2 class="section-title">
+        <span class="section-icon">👥</span>
+        ギルド・参加者一覧
+      </h2>
+      <div id="guilds-container" class="guilds-container"></div>
+    </section>
+
+    <!-- キャラ配置情報 -->
+    <section id="deploy-section">
+      <h2 class="section-title">
+        <span class="section-icon">📋</span>
+        キャラ配置ログ
+      </h2>
+      <div id="deploy-log" class="deploy-log"></div>
+    </section>
+  </main>
+
+  <!-- フッター -->
+  <footer>
+    <p>データソース: <a href="https://mentemori.icu/" target="_blank" rel="noopener">mentemori.icu</a> API</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

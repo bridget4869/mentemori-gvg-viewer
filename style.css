@@ -1,0 +1,729 @@
+/* ===========================
+   メメントモリ GvG リアルタイムビューア
+   スタイルシート
+   =========================== */
+
+/* リセット & ベース */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* カラーパレット */
+  --bg-primary: #0a0a12;
+  --bg-secondary: #12121e;
+  --bg-card: #1a1a2e;
+  --bg-card-hover: #222240;
+  --bg-input: #16162a;
+
+  --accent-1: #6c5ce7;
+  --accent-2: #a29bfe;
+  --accent-3: #00cec9;
+  --accent-4: #fd79a8;
+  --accent-glow: rgba(108, 92, 231, 0.3);
+
+  --text-primary: #e8e8f0;
+  --text-secondary: #8888a8;
+  --text-muted: #555570;
+
+  --border: rgba(255, 255, 255, 0.06);
+  --border-accent: rgba(108, 92, 231, 0.3);
+
+  --success: #00b894;
+  --warning: #fdcb6e;
+  --danger: #e17055;
+  --info: #74b9ff;
+
+  /* 状態色 */
+  --castle-neutral: #636e72;
+  --castle-defense: #0984e3;
+  --castle-attack: #d63031;
+  --castle-fallen: #fdcb6e;
+
+  /* グラデーション */
+  --gradient-header: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 50%, #12121e 100%);
+  --gradient-card: linear-gradient(145deg, rgba(26, 26, 46, 0.8), rgba(18, 18, 30, 0.9));
+  --gradient-accent: linear-gradient(135deg, #6c5ce7, #a29bfe);
+
+  /* フォント */
+  --font-main: 'Noto Sans JP', 'Inter', sans-serif;
+
+  /* アニメーション */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  /* 角丸 */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+html {
+  font-size: 14px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-main);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* 背景装飾 */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(108, 92, 231, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(0, 206, 201, 0.03) 0%, transparent 50%);
+  z-index: -1;
+  animation: bgFloat 20s ease-in-out infinite;
+}
+
+@keyframes bgFloat {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-2%, -2%); }
+}
+
+/* ===========================
+   ヘッダー
+   =========================== */
+#app-header {
+  background: var(--gradient-header);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  font-size: 28px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.logo h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logo-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+/* 接続状態 */
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  font-size: 0.85rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+  transition: background var(--transition-normal);
+}
+
+.connection-status.connected .status-dot {
+  background: var(--success);
+  box-shadow: 0 0 8px var(--success);
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+.connection-status.connecting .status-dot {
+  background: var(--warning);
+  animation: statusPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ===========================
+   コントロールパネル
+   =========================== */
+#controls {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0;
+}
+
+.controls-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.toggle-group {
+  display: flex;
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.toggle-btn {
+  padding: 8px 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-main);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.toggle-btn.active {
+  background: var(--accent-1);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.4);
+}
+
+.toggle-btn:hover:not(.active) {
+  background: rgba(108, 92, 231, 0.15);
+  color: var(--text-primary);
+}
+
+.btn-group {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.scroll-group {
+  max-width: 700px;
+  max-height: 80px;
+  overflow-y: auto;
+  padding: 4px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.scroll-group::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scroll-group::-webkit-scrollbar-thumb {
+  background: var(--accent-1);
+  border-radius: 4px;
+}
+
+.select-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-family: var(--font-main);
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.select-btn:hover {
+  border-color: var(--accent-2);
+  color: var(--text-primary);
+}
+
+.select-btn.active {
+  background: var(--accent-1);
+  border-color: var(--accent-1);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(108, 92, 231, 0.3);
+}
+
+/* ===========================
+   エラーバー
+   =========================== */
+#error-bar {
+  background: rgba(225, 112, 85, 0.15);
+  border-bottom: 1px solid var(--danger);
+  padding: 10px 32px;
+  text-align: center;
+  color: var(--danger);
+  font-size: 0.85rem;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ===========================
+   メインコンテンツ
+   =========================== */
+#main-content {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px 32px 60px;
+}
+
+/* 概要カード */
+#summary-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.summary-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.summary-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-accent);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-accent);
+}
+
+.summary-card:hover::before {
+  opacity: 1;
+}
+
+.card-icon {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+.card-value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent-2);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.card-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* セクションタイトル */
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-icon {
+  font-size: 1.2rem;
+}
+
+/* ===========================
+   城グリッド
+   =========================== */
+.castles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.castle-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.castle-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--castle-neutral);
+  transition: background var(--transition-normal);
+}
+
+.castle-card.battle::before {
+  background: var(--castle-attack);
+  box-shadow: 0 0 10px var(--castle-attack);
+  animation: battlePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes battlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.castle-card.neutral::before {
+  background: var(--castle-defense);
+}
+
+.castle-card:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-1px);
+}
+
+.castle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.castle-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.castle-type {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  padding: 2px 8px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+}
+
+.castle-guild {
+  font-size: 0.85rem;
+  color: var(--accent-3);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.castle-guild .guild-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.castle-stats {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+}
+
+.castle-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.castle-stat.defense {
+  color: var(--info);
+}
+
+.castle-stat.offense {
+  color: var(--danger);
+}
+
+.castle-stat .stat-icon {
+  font-size: 0.9rem;
+}
+
+.ko-badge {
+  background: rgba(214, 48, 49, 0.2);
+  color: var(--danger);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* ===========================
+   ギルド・参加者一覧
+   =========================== */
+.guilds-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.guild-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+.guild-card:hover {
+  border-color: var(--border-accent);
+}
+
+.guild-card-header {
+  background: rgba(108, 92, 231, 0.1);
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.guild-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--accent-2);
+}
+
+.guild-member-count {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  background: var(--bg-input);
+  padding: 2px 10px;
+  border-radius: var(--radius-xl);
+}
+
+.guild-members {
+  padding: 12px 18px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.guild-members::-webkit-scrollbar {
+  width: 4px;
+}
+
+.guild-members::-webkit-scrollbar-thumb {
+  background: var(--accent-1);
+  border-radius: 4px;
+}
+
+.member-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+  font-size: 0.85rem;
+}
+
+.member-item:hover {
+  background: rgba(108, 92, 231, 0.08);
+}
+
+.member-name {
+  color: var(--text-primary);
+}
+
+.member-deploy {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ===========================
+   キャラ配置ログ
+   =========================== */
+.deploy-log {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-size: 0.82rem;
+}
+
+.deploy-log::-webkit-scrollbar {
+  width: 4px;
+}
+
+.deploy-log::-webkit-scrollbar-thumb {
+  background: var(--accent-1);
+  border-radius: 4px;
+}
+
+.log-entry {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  animation: logSlide 0.3s ease;
+}
+
+@keyframes logSlide {
+  from { transform: translateX(-10px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.log-entry:last-child {
+  border-bottom: none;
+}
+
+.log-time {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  min-width: 70px;
+}
+
+.log-player {
+  color: var(--accent-3);
+  min-width: 120px;
+}
+
+.log-action {
+  color: var(--text-secondary);
+}
+
+.log-castle {
+  color: var(--warning);
+}
+
+.log-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 30px;
+}
+
+/* ===========================
+   フッター
+   =========================== */
+footer {
+  text-align: center;
+  padding: 24px 32px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+
+footer a {
+  color: var(--accent-2);
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* ===========================
+   レスポンシブ
+   =========================== */
+@media (max-width: 1024px) {
+  .controls-inner {
+    flex-direction: column;
+  }
+
+  #summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .guilds-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .header-inner {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .castles-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #main-content {
+    padding: 16px;
+  }
+}
