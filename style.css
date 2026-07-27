@@ -335,6 +335,71 @@ body::before {
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
+.custom-input {
+  background: #ffffff;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  font-family: var(--font-main);
+  font-size: 0.82rem;
+  font-weight: 500;
+  outline: none;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.custom-input:focus {
+  border-color: var(--accent-1);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.preset-btn {
+  padding: 7px 14px;
+  border: 1px solid #fde68a;
+  background: #fffbe6;
+  color: #b45309;
+  font-family: var(--font-main);
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.preset-btn:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  transform: translateY(-1px);
+}
+
+.vip-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #fffbe6 0%, #fef3c7 100%);
+  color: #b45309;
+  border: 1px solid #fde68a;
+  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.15);
+  margin-left: 4px;
+}
+
+.highlighted-member {
+  background: rgba(254, 243, 199, 0.35) !important;
+  border-left: 3px solid #f59e0b;
+  padding-left: 8px !important;
+}
+
+.highlighted-entry {
+  background: #fffbe6 !important;
+  border-left: 3px solid #f59e0b;
+}
+
 .filter-reset-btn {
   padding: 7px 14px;
   border: 1px solid var(--border);

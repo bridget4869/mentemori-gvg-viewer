@@ -33,6 +33,13 @@ const getCastleType = (id) => {
 // サーバーIDオフセット
 const SERVER_OFFSETS = { jp: 1000, kr: 2000, as: 3000, na: 4000, eu: 5000, gl: 6000 };
 
+// 戦力上位プレイヤープリセット（みるふぃーゆ）
+const PRESET_TOP_PLAYERS = [
+  "無", "ふりかけ青太郎", "ビンゴ", "極み煌くお玉", "クロス",
+  "わさび", "さき", "みんみ", "イチ", "アクト", "かれん",
+  "pon", "Mel", "ぶりーず", "久遠", "ゆ", "こげた大福"
+];
+
 // GvG城の戦闘状態
 const GVG_STATE = {
   0: '防衛',       // neutral / peaceful defense
@@ -61,6 +68,12 @@ const state = {
     status: 'all',         // 'all' | 'battle' | 'peace'
   },
 
+  // 注目（戦力上位）プレイヤー一覧
+  highlightPlayers: (localStorage.getItem('gvg_highlight_players') || PRESET_TOP_PLAYERS.join(', '))
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean),
+
   // リアルタイムデータ
   guilds: {},              // guildId -> guildName
   players: {},             // guildId -> [{PlayerId, GuildId, PlayerName}, ...]
@@ -72,6 +85,13 @@ const state = {
   // ワールド/グループ情報
   worlds: [],
   wgroups: [],
+};
+
+/** プレイヤーが注目（戦力上位）プレイヤーか判定 */
+const isHighlightedPlayer = (name) => {
+  if (!name || !state.highlightPlayers.length) return false;
+  const target = name.trim();
+  return state.highlightPlayers.some(p => p && (target === p || target.includes(p)));
 };
 
 // ===========================
@@ -652,10 +672,14 @@ const renderGuilds = () => {
 
         const detailsText = details.length > 0 ? details.join(' ') : '';
 
+        const isHighlight = isHighlightedPlayer(member.PlayerName);
+        const memberClass = isHighlight ? 'member-item highlighted-member' : 'member-item';
+        const vipBadge = isHighlight ? '<span class="vip-badge" title="戦力上位ハイライト">👑 主力</span>' : '';
+
         membersHtml += `
-          <div class="member-item">
+          <div class="${memberClass}">
             <div class="member-main">
-              <span class="member-name">${escapeHtml(member.PlayerName)}</span>
+              <span class="member-name">${escapeHtml(member.PlayerName)} ${vipBadge}</span>
               ${staminaBadge}
             </div>
             ${detailsText ? `<div class="member-deploy">${detailsText}</div>` : ''}
@@ -696,10 +720,14 @@ const renderDeployLog = () => {
 
   let html = '';
   for (const entry of state.deployLog.slice(0, 50)) {
+    const isHighlight = isHighlightedPlayer(entry.playerName);
+    const highlightClass = isHighlight ? 'highlighted-entry' : '';
+    const vipBadge = isHighlight ? '<span class="vip-badge" title="戦力上位ハイライト">👑 主力</span>' : '';
+
     html += `
-      <div class="log-entry">
+      <div class="log-entry ${highlightClass}">
         <span class="log-time">${formatTime(entry.time)}</span>
-        <span class="log-player">${escapeHtml(entry.playerName)}</span>
+        <span class="log-player">${escapeHtml(entry.playerName)} ${vipBadge}</span>
         <span class="log-action">→</span>
         <span class="log-castle">${escapeHtml(entry.castleName)}</span>
         <span class="log-action">(${entry.deployCount}体配置)</span>
@@ -959,6 +987,37 @@ const setupUI = () => {
     if ($('#filter-status')) $('#filter-status').value = 'all';
 
     renderCastles();
+  });
+
+  // 注目（戦力上位）プレイヤー設定
+  const highlightInput = $('#highlight-input');
+  if (highlightInput) {
+    highlightInput.value = state.highlightPlayers.join(', ');
+
+    highlightInput.addEventListener('input', (e) => {
+      const val = e.target.value;
+      state.highlightPlayers = val.split(',').map(s => s.trim()).filter(Boolean);
+      localStorage.setItem('gvg_highlight_players', val);
+      renderGuilds();
+      renderDeployLog();
+    });
+  }
+
+  $('#preset-load-btn')?.addEventListener('click', () => {
+    const val = PRESET_TOP_PLAYERS.join(', ');
+    if (highlightInput) highlightInput.value = val;
+    state.highlightPlayers = [...PRESET_TOP_PLAYERS];
+    localStorage.setItem('gvg_highlight_players', val);
+    renderGuilds();
+    renderDeployLog();
+  });
+
+  $('#highlight-clear-btn')?.addEventListener('click', () => {
+    if (highlightInput) highlightInput.value = '';
+    state.highlightPlayers = [];
+    localStorage.setItem('gvg_highlight_players', '');
+    renderGuilds();
+    renderDeployLog();
   });
 };
 
