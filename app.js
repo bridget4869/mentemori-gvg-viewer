@@ -35,10 +35,10 @@ const SERVER_OFFSETS = { jp: 1000, kr: 2000, as: 3000, na: 4000, eu: 5000, gl: 6
 
 // GvG城の戦闘状態
 const GVG_STATE = {
-  0: '中立',     // neutral, no battle
-  1: '戦闘中',   // active battle (defender is owner)
-  2: '陥落',     // fallen (attacker won)
-  3: '奪還戦',   // recapture battle
+  0: '防衛',       // neutral / peaceful defense
+  1: '侵攻中',     // active battle (attacker is attacking)
+  2: '陥落',       // fallen (attacker won)
+  3: '奪還戦',     // recapture battle
 };
 
 // ===========================
@@ -475,11 +475,13 @@ const updateGuildFilterOptions = () => {
 const matchesFilter = (castle) => {
   const { guildId, role, status } = state.filter;
 
-  // 1. 状態フィルター
-  if (status === 'battle') {
-    if (!castle || castle.GvgCastleState % 2 !== 1) return false;
-  } else if (status === 'peace') {
-    if (castle && castle.GvgCastleState % 2 === 1) return false;
+  // 1. 状態フィルター（侵攻 / 防衛）
+  if (status === 'attack') {
+    // 侵攻：攻撃中・戦闘中・または攻撃パーティが存在する拠点
+    if (!castle || (castle.GvgCastleState % 2 !== 1 && castle.AttackPartyCount === 0 && !castle.AttackerGuildId)) return false;
+  } else if (status === 'defense') {
+    // 防衛：攻撃を受けておらず防衛のみの平和な拠点
+    if (castle && (castle.GvgCastleState % 2 === 1 || castle.AttackPartyCount > 0 || castle.AttackerGuildId)) return false;
   }
 
   // 2. ギルドフィルター
