@@ -1,6 +1,6 @@
 /* ===========================
    メメントモリ GvG リアルタイムビューア
-   スタイルシート
+   プレミアム・ホワイトテーマ (白基調デザイン)
    =========================== */
 
 /* リセット & ベース */
@@ -11,55 +11,61 @@
 }
 
 :root {
-  /* カラーパレット */
-  --bg-primary: #0a0a12;
-  --bg-secondary: #12121e;
-  --bg-card: #1a1a2e;
-  --bg-card-hover: #222240;
-  --bg-input: #16162a;
+  /* カラーパレット (白基調・洗練されたライトテーマ) */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --bg-input: #f8fafc;
 
-  --accent-1: #6c5ce7;
-  --accent-2: #a29bfe;
-  --accent-3: #00cec9;
-  --accent-4: #fd79a8;
-  --accent-glow: rgba(108, 92, 231, 0.3);
+  --accent-1: #4f46e5;       /* インディゴ */
+  --accent-2: #6366f1;
+  --accent-3: #0284c7;       /* スカイブルー */
+  --accent-4: #ec4899;       /* ピンク */
+  --accent-glow: rgba(79, 70, 229, 0.15);
 
-  --text-primary: #e8e8f0;
-  --text-secondary: #8888a8;
-  --text-muted: #555570;
+  --text-primary: #0f172a;   /* 濃いスレート */
+  --text-secondary: #475569; /* ミディアムスレート */
+  --text-muted: #94a3b8;     /* ライトスレート */
 
-  --border: rgba(255, 255, 255, 0.06);
-  --border-accent: rgba(108, 92, 231, 0.3);
+  --border: #e2e8f0;
+  --border-accent: #c7d2fe;
 
-  --success: #00b894;
-  --warning: #fdcb6e;
-  --danger: #e17055;
-  --info: #74b9ff;
+  --success: #10b981;
+  --warning: #d97706;
+  --danger: #ef4444;
+  --info: #2563eb;
 
-  /* 状態色 */
-  --castle-neutral: #636e72;
-  --castle-defense: #0984e3;
-  --castle-attack: #d63031;
-  --castle-fallen: #fdcb6e;
+  /* 拠点状態色 */
+  --castle-neutral: #94a3b8;
+  --castle-defense: #2563eb;
+  --castle-attack: #ef4444;
+  --castle-fallen: #d97706;
 
   /* グラデーション */
-  --gradient-header: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 50%, #12121e 100%);
-  --gradient-card: linear-gradient(145deg, rgba(26, 26, 46, 0.8), rgba(18, 18, 30, 0.9));
-  --gradient-accent: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  --gradient-header: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  --gradient-card: #ffffff;
+  --gradient-accent: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
 
   /* フォント */
-  --font-main: 'Noto Sans JP', 'Inter', sans-serif;
+  --font-main: 'Noto Sans JP', 'Inter', system-ui, -apple-system, sans-serif;
 
   /* アニメーション */
   --transition-fast: 0.15s ease;
-  --transition-normal: 0.3s ease;
-  --transition-slow: 0.5s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s ease;
 
   /* 角丸 */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 9999px;
+
+  /* シャドウ */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+  --shadow-accent: 0 4px 14px 0 rgba(79, 70, 229, 0.25);
 }
 
 html {
@@ -74,26 +80,20 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* 背景装飾 */
+/* 背景アクセント */
 body::before {
   content: '';
   position: fixed;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background:
-    radial-gradient(ellipse at 20% 20%, rgba(108, 92, 231, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 80%, rgba(0, 206, 201, 0.03) 0%, transparent 50%);
+  top: -20%;
+  right: -10%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.04) 0%, transparent 70%);
+  pointer-events: none;
   z-index: -1;
-  animation: bgFloat 20s ease-in-out infinite;
-}
-
-@keyframes bgFloat {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(-2%, -2%); }
 }
 
 /* ===========================
@@ -102,16 +102,16 @@ body::before {
 #app-header {
   background: var(--gradient-header);
   border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(20px);
   position: sticky;
   top: 0;
   z-index: 100;
+  box-shadow: var(--shadow-sm);
 }
 
 .header-inner {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 16px 32px;
+  padding: 14px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -120,34 +120,27 @@ body::before {
 .logo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .logo-icon {
-  font-size: 28px;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  font-size: 26px;
 }
 
 .logo h1 {
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   font-weight: 700;
-  background: var(--gradient-accent);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #0f172a;
+  letter-spacing: -0.02em;
 }
 
 .logo-sub {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  padding: 2px 8px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  color: var(--accent-1);
+  background: #eef2ff;
+  padding: 3px 10px;
+  border-radius: var(--radius-xl);
+  font-weight: 600;
 }
 
 /* 接続状態 */
@@ -156,10 +149,12 @@ body::before {
   align-items: center;
   gap: 8px;
   padding: 6px 16px;
-  background: var(--bg-card);
+  background: #ffffff;
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
 }
 
 .status-dot {
@@ -167,32 +162,31 @@ body::before {
   height: 8px;
   border-radius: 50%;
   background: var(--danger);
-  transition: background var(--transition-normal);
+}
+
+.connection-status.connected {
+  border-color: #d1fae5;
+  background: #ecfdf5;
+  color: #065f46;
 }
 
 .connection-status.connected .status-dot {
   background: var(--success);
-  box-shadow: 0 0 8px var(--success);
-  animation: statusPulse 2s ease-in-out infinite;
+  box-shadow: 0 0 6px var(--success);
 }
 
 .connection-status.connecting .status-dot {
   background: var(--warning);
-  animation: statusPulse 0.8s ease-in-out infinite;
-}
-
-@keyframes statusPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
 }
 
 /* ===========================
    コントロールパネル
    =========================== */
 #controls {
-  background: var(--bg-secondary);
+  background: #ffffff;
   border-bottom: 1px solid var(--border);
   padding: 20px 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .controls-inner {
@@ -212,56 +206,56 @@ body::before {
 }
 
 .control-label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .toggle-group {
   display: flex;
-  background: var(--bg-input);
+  background: #f1f5f9;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  overflow: hidden;
+  padding: 3px;
+  gap: 2px;
 }
 
 .toggle-btn {
-  padding: 8px 20px;
+  padding: 7px 18px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-main);
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
+  border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
 }
 
 .toggle-btn.active {
-  background: var(--accent-1);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.4);
+  background: #ffffff;
+  color: var(--accent-1);
+  box-shadow: var(--shadow-sm);
 }
 
 .toggle-btn:hover:not(.active) {
-  background: rgba(108, 92, 231, 0.15);
   color: var(--text-primary);
 }
 
 .btn-group {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .scroll-group {
   max-width: 700px;
-  max-height: 80px;
+  max-height: 85px;
   overflow-y: auto;
-  padding: 4px;
-  background: var(--bg-input);
+  padding: 6px;
+  background: #f8fafc;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
 }
@@ -271,17 +265,18 @@ body::before {
 }
 
 .scroll-group::-webkit-scrollbar-thumb {
-  background: var(--accent-1);
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 .select-btn {
   padding: 6px 14px;
   border: 1px solid var(--border);
-  background: var(--bg-card);
+  background: #ffffff;
   color: var(--text-secondary);
   font-family: var(--font-main);
   font-size: 0.8rem;
+  font-weight: 500;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -290,21 +285,21 @@ body::before {
 
 .select-btn:hover {
   border-color: var(--accent-2);
-  color: var(--text-primary);
+  color: var(--accent-1);
 }
 
 .select-btn.active {
   background: var(--accent-1);
   border-color: var(--accent-1);
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(108, 92, 231, 0.3);
+  color: #ffffff;
+  box-shadow: var(--shadow-accent);
 }
 
 /* 拠点フィルター */
 .filter-control-group {
   width: 100%;
   margin-top: 8px;
-  padding-top: 12px;
+  padding-top: 14px;
   border-top: 1px dashed var(--border);
 }
 
@@ -316,17 +311,19 @@ body::before {
 }
 
 .custom-select {
-  background: var(--bg-input);
+  background: #ffffff;
   color: var(--text-primary);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 6px 12px;
+  padding: 7px 14px;
   font-family: var(--font-main);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 500;
   outline: none;
   cursor: pointer;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-  min-width: 140px;
+  transition: all var(--transition-fast);
+  min-width: 150px;
+  box-shadow: var(--shadow-sm);
 }
 
 .custom-select:hover {
@@ -335,170 +332,119 @@ body::before {
 
 .custom-select:focus {
   border-color: var(--accent-1);
-  box-shadow: 0 0 0 2px var(--accent-glow);
-}
-
-.custom-select option {
-  background: var(--bg-card);
-  color: var(--text-primary);
-  padding: 6px;
+  box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
 .filter-reset-btn {
-  padding: 6px 14px;
+  padding: 7px 14px;
   border: 1px solid var(--border);
-  background: var(--bg-card);
+  background: #ffffff;
   color: var(--text-secondary);
   font-family: var(--font-main);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 500;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all var(--transition-fast);
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  box-shadow: var(--shadow-sm);
 }
 
 .filter-reset-btn:hover {
-  background: rgba(225, 112, 85, 0.2);
+  background: #fef2f2;
   border-color: var(--danger);
-  color: #fff;
-}
-
-.empty-castles-message {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 40px;
-  background: var(--bg-card);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-lg);
-  color: var(--text-muted);
-  font-size: 0.95rem;
-}
-
-/* ===========================
-   エラーバー
-   =========================== */
-#error-bar {
-  background: rgba(225, 112, 85, 0.15);
-  border-bottom: 1px solid var(--danger);
-  padding: 10px 32px;
-  text-align: center;
   color: var(--danger);
-  font-size: 0.85rem;
-  animation: slideDown 0.3s ease;
 }
 
-@keyframes slideDown {
-  from { transform: translateY(-100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* ===========================
-   メインコンテンツ
-   =========================== */
+/* メインエリア */
 #main-content {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 24px 32px 60px;
-}
-
-/* 概要カード */
-#summary-cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.summary-card {
-  background: var(--gradient-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  text-align: center;
-  backdrop-filter: blur(10px);
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
-}
-
-.summary-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--gradient-accent);
-  opacity: 0;
-  transition: opacity var(--transition-normal);
-}
-
-.summary-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--border-accent);
-}
-
-.summary-card:hover::before {
-  opacity: 1;
-}
-
-.card-icon {
-  font-size: 1.8rem;
-  margin-bottom: 8px;
-}
-
-.card-value {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: var(--accent-2);
-  line-height: 1;
-  margin-bottom: 4px;
-}
-
-.card-label {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+  padding: 32px;
 }
 
 /* セクションタイトル */
 .section-title {
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 16px;
   display: flex;
   align-items: center;
   gap: 8px;
+  letter-spacing: -0.01em;
 }
 
-.section-icon {
-  font-size: 1.2rem;
-}
-
-/* ===========================
-   城グリッド
-   =========================== */
-.castles-grid {
+/* サマリーカード */
+#summary-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
   margin-bottom: 32px;
 }
 
+.summary-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.card-value {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.card-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* ===========================
+   城一覧
+   =========================== */
+#castles-section {
+  margin-bottom: 40px;
+}
+
+.castles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
 .castle-card {
-  background: var(--gradient-card);
+  background: #ffffff;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 16px;
-  transition: all var(--transition-normal);
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
 }
 
 .castle-card::before {
@@ -507,20 +453,13 @@ body::before {
   left: 0;
   top: 0;
   bottom: 0;
-  width: 3px;
+  width: 4px;
   background: var(--castle-neutral);
-  transition: background var(--transition-normal);
 }
 
 .castle-card.battle::before {
   background: var(--castle-attack);
-  box-shadow: 0 0 10px var(--castle-attack);
-  animation: battlePulse 1.5s ease-in-out infinite;
-}
-
-@keyframes battlePulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
 }
 
 .castle-card.neutral::before {
@@ -529,75 +468,93 @@ body::before {
 
 .castle-card:hover {
   border-color: var(--border-accent);
-  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .castle-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .castle-name {
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--text-primary);
 }
 
 .castle-type {
-  font-size: 0.7rem;
-  color: var(--text-muted);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
   padding: 2px 8px;
-  background: var(--bg-input);
+  background: #f1f5f9;
   border-radius: var(--radius-sm);
+  font-weight: 500;
 }
 
 .castle-guild {
   font-size: 0.85rem;
-  color: var(--accent-3);
-  margin-bottom: 4px;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 6px;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
 .castle-guild .guild-label {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
+  font-weight: 500;
 }
 
 .castle-stats {
   display: flex;
   gap: 12px;
-  margin-top: 8px;
-  font-size: 0.8rem;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
 }
 
 .castle-stat {
   display: flex;
   align-items: center;
   gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
 }
 
 .castle-stat.defense {
-  color: var(--info);
+  color: #1d4ed8;
+  background: #eff6ff;
 }
 
 .castle-stat.offense {
-  color: var(--danger);
-}
-
-.castle-stat .stat-icon {
-  font-size: 0.9rem;
+  color: #b91c1c;
+  background: #fef2f2;
 }
 
 .ko-badge {
-  background: rgba(214, 48, 49, 0.2);
-  color: var(--danger);
+  background: #fff7ed;
+  color: #c2410c;
   padding: 2px 8px;
   border-radius: var(--radius-sm);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
+  border: 1px solid #ffedd5;
+}
+
+.empty-castles-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  background: #ffffff;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 0.92rem;
 }
 
 /* ===========================
@@ -605,25 +562,27 @@ body::before {
    =========================== */
 .guilds-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 16px;
-  margin-bottom: 32px;
+  margin-bottom: 36px;
 }
 
 .guild-card {
-  background: var(--gradient-card);
+  background: #ffffff;
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   overflow: hidden;
-  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
 }
 
 .guild-card:hover {
   border-color: var(--border-accent);
+  box-shadow: var(--shadow-md);
 }
 
 .guild-card-header {
-  background: rgba(108, 92, 231, 0.1);
+  background: #f8fafc;
   padding: 14px 18px;
   display: flex;
   justify-content: space-between;
@@ -632,26 +591,31 @@ body::before {
 }
 
 .guild-name {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1rem;
-  color: var(--accent-2);
-  display: block;
+  color: var(--text-primary);
 }
 
 .guild-stamina-total {
   font-size: 0.75rem;
-  color: #fdcb6e;
-  font-weight: 600;
-  margin-top: 2px;
+  color: #b45309;
+  font-weight: 700;
+  background: #fffbe6;
+  border: 1px solid #fef3c7;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  margin-top: 3px;
   display: inline-block;
 }
 
 .guild-member-count {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
-  background: var(--bg-input);
-  padding: 2px 10px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  padding: 3px 10px;
   border-radius: var(--radius-xl);
+  font-weight: 600;
 }
 
 .guild-members {
@@ -665,26 +629,20 @@ body::before {
 }
 
 .guild-members::-webkit-scrollbar-thumb {
-  background: var(--accent-1);
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 .member-item {
   display: flex;
   flex-direction: column;
-  padding: 8px;
-  border-radius: var(--radius-sm);
-  transition: background var(--transition-fast);
+  padding: 8px 4px;
+  border-bottom: 1px solid #f1f5f9;
   font-size: 0.85rem;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
 }
 
 .member-item:last-child {
   border-bottom: none;
-}
-
-.member-item:hover {
-  background: rgba(108, 92, 231, 0.08);
 }
 
 .member-main {
@@ -696,31 +654,31 @@ body::before {
 
 .member-name {
   color: var(--text-primary);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .stamina-badge {
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   padding: 2px 8px;
   border-radius: var(--radius-sm);
-  background: rgba(253, 203, 110, 0.15);
-  color: #fdcb6e;
-  border: 1px solid rgba(253, 203, 110, 0.3);
+  background: #fffbe6;
+  color: #b45309;
+  border: 1px solid #fde68a;
 }
 
 .stamina-badge.empty {
-  background: rgba(255, 255, 255, 0.05);
+  background: #f8fafc;
   color: var(--text-muted);
-  border: 1px solid transparent;
+  border: 1px solid var(--border);
   font-weight: 400;
 }
 
 .member-deploy {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin-top: 4px;
-  padding-left: 4px;
+  padding-left: 2px;
   word-break: break-all;
 }
 
@@ -728,13 +686,14 @@ body::before {
    キャラ配置ログ
    =========================== */
 .deploy-log {
-  background: var(--gradient-card);
+  background: #ffffff;
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   padding: 16px;
   max-height: 400px;
   overflow-y: auto;
-  font-size: 0.82rem;
+  font-size: 0.84rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .deploy-log::-webkit-scrollbar {
@@ -742,45 +701,45 @@ body::before {
 }
 
 .deploy-log::-webkit-scrollbar-thumb {
-  background: var(--accent-1);
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 .log-entry {
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--border);
   display: flex;
-  gap: 12px;
   align-items: center;
-  animation: logSlide 0.3s ease;
-}
-
-@keyframes logSlide {
-  from { transform: translateX(-10px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  gap: 10px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background var(--transition-fast);
 }
 
 .log-entry:last-child {
   border-bottom: none;
 }
 
+.log-entry:hover {
+  background: #f8fafc;
+}
+
 .log-time {
-  color: var(--text-muted);
   font-size: 0.75rem;
-  min-width: 70px;
+  color: var(--text-muted);
+  font-family: monospace;
 }
 
 .log-player {
-  color: var(--accent-3);
-  min-width: 120px;
+  font-weight: 600;
+  color: var(--accent-1);
+}
+
+.log-castle {
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .log-action {
   color: var(--text-secondary);
-}
-
-.log-castle {
-  color: var(--warning);
 }
 
 .log-empty {
@@ -790,18 +749,35 @@ body::before {
 }
 
 /* ===========================
-   フッター
+   エラーバー
    =========================== */
+#error-bar {
+  background: #fef2f2;
+  border-bottom: 1px solid #fca5a5;
+  padding: 10px 32px;
+  text-align: center;
+  color: var(--danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* フッター */
 footer {
   text-align: center;
-  padding: 24px 32px;
+  padding: 24px;
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   border-top: 1px solid var(--border);
+  background: #ffffff;
+  margin-top: 40px;
 }
 
 footer a {
-  color: var(--accent-2);
+  color: var(--accent-1);
   text-decoration: none;
 }
 
@@ -809,38 +785,18 @@ footer a:hover {
   text-decoration: underline;
 }
 
-/* ===========================
-   レスポンシブ
-   =========================== */
-@media (max-width: 1024px) {
-  .controls-inner {
-    flex-direction: column;
-  }
-
-  #summary-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .guilds-container {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .header-inner {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  #summary-cards {
-    grid-template-columns: repeat(2, 1fr);
+/* レスポンシブ調整 */
+@media (max-width: 768px) {
+  .header-inner, .controls-inner, #main-content {
+    padding-left: 16px;
+    padding-right: 16px;
   }
 
   .castles-grid {
     grid-template-columns: 1fr;
   }
 
-  #main-content {
-    padding: 16px;
+  .guilds-container {
+    grid-template-columns: 1fr;
   }
 }
